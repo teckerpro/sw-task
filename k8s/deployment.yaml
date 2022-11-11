@@ -18,7 +18,6 @@ spec:
       labels:
         app: gorand-app
     spec:
-      restartPolicy: Always
       containers:
         - name: gorand
           image: tecker/gorand:TEMPLATE_FROM_YQ
