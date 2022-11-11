@@ -1,13 +1,22 @@
 stages:
   - build
+  - push
   - deploy
 
 build-job:
   stage: build
   script:
-    - docker image build -t tecker/gorand:latest .
+    - docker image build -t tecker/gorand:$CI_COMMIT_SHA .
+
+push-job:
+  stage: push
+  script:
+    - docker push tecker/gorand:$CI_COMMIT_SHA
 
 deploy-job:
   stage: deploy
   script:
-    - kubectl apply -f k8s.yaml 
+    - kubectl apply -f k8s/service.yaml
+    - kubectl apply -f k8s/ingress.yaml
+    - yq e ".spec.template.spec.containers[0].image = \"tecker/gorand:$CI_COMMIT_SHA\"" -i k8s/deployment.yaml 
+    - kubectl apply -f k8s/deployment.yaml
